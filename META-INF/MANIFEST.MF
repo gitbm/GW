@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GitWave
+Bundle-SymbolicName: GitWave
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.ui;bundle-version="3.5.2";resolution:=optional,
+ org.eclipse.jgit;bundle-version="0.12.0",
+ XScalaWT;bundle-version="1.0.0",
+ org.eclipse.core.runtime;bundle-version="3.5.0",
+ org.scala-ide.scala.library
+Export-Package: swtlaunch.entrypoints
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
