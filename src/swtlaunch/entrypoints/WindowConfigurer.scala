@@ -4,7 +4,7 @@ import org.eclipse.swt.graphics.Point
 
 class WindowConfigurer {
 	def configureWorkbenchWindow(configurer : IWorkbenchWindowConfigurer) : Unit = {
-		configurer.setInitialSize(new Point(450, 600));
+		configurer.setInitialSize(new Point(450, 350));
 		configurer.setShowCoolBar(false);
 		configurer.setShowStatusLine(false);
 		configurer.setTitle("Bar!!");
