@@ -25,6 +25,18 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.jface.viewers.SelectionChangedEvent
 import org.eclipse.jface.viewers.ISelectionChangedListener
 import org.eclipse.jface.viewers.IStructuredSelection
+import org.gitwave._
+import common.Imports._
+import common.Implicits._
+import Implicits._
+import common.Conversations
+import common.Conversation
+import org.gitwave.common.FactoryDefault
+import org.gitwave.common.ConversationAlternate
+import org.gitwave.common.Factory
+import org.gitwave.common.ConversationsAlternate
+
+
 
 class ScalaListContentProvider extends IStructuredContentProvider {
 	def getElements(inputElement: Object) = { inputElement.asInstanceOf[List[Object]].toArray }
@@ -117,11 +129,13 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 				throw new RuntimeException("Property value for " + name + " could not be found")))
 	}
 	
-	def getTextData(id : Long) = { id + " - ZYYYYYYYYYY" }
-	def getTextData(id : String) : String = { getTextData(getTextId(id)) }
-	def getTextId(id : String) = { try { id.toLong } catch { case _ => 0 } }
-	def setTextData(id : Long) { text.setText(getTextData(id)) }
-	def setTextData(id : String) { setTextData(getTextId(id)) }
+	def getTextData(conv : Conversation) = { conv.getText }
+	def setTextData(conv : Conversation) { text.setText(getTextData(conv)) }
+//	def getTextData(id : Long) = { id + " - ZYYYYYYYYYY" }
+//	def getTextData(id : String) : String = { getTextData(getTextId(id)) }
+//	def getTextId(id : String) = { try { id.toLong } catch { case _ => 0 } }
+//	def setTextData(id : Long) { text.setText(getTextData(id)) }
+//	def setTextData(id : String) { setTextData(getTextId(id)) }
 	
 	def setFocus() = {
 		viewer.getControl.setFocus()
@@ -142,8 +156,16 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 		}
 	}
 
-	
+//	FactoryFactory.setInstance(new FactoryFactoryForApplication)
+//	val t = FactoryFactory.create(classOf[Conversation])
+//	val n = FactoryFactory.nu[Conversation]
+
 	initProperties
+
+	overrideCommonImplicits	
+
+	val convs = neu[Conversations]
+	dbprintln("conv created: " + convs.getClass().getSimpleName())
 	
 	theDisplay = Display.getDefault()
 	
@@ -155,17 +177,17 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 	gridData.heightHint = 200
 		
 	// retrieve list of existing conversations
-	val convList = List("7", "2", "more", "here")
+	val convList = convs.convList
 	
 	parent.contains (
 		_.setLayout(new GridLayout(1, false)),
 		label("Conversations"),
 		listViewer(
 			_.setContentProvider(new ScalaListContentProvider),	
-			_.setLabelProvider ({ o: Object => o.asInstanceOf[String] }),
+			_.setLabelProvider ({ o: Object => o.asInstanceOf[Conversation].id.toString }),
 		    _.setInput(convList),
 		    _.addSelectionChangedListener { (event : SelectionChangedEvent) => 
-		    	setTextData(event.getSelection().asInstanceOf[IStructuredSelection].iterator().next().asInstanceOf[String])
+		    	setTextData(event.getSelection().asInstanceOf[IStructuredSelection].iterator().next().asInstanceOf[Conversation])
 		    }
 		),
 		button("New Conversation",
