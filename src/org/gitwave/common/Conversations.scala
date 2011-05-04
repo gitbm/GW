@@ -1,16 +1,23 @@
 package org.gitwave.common
 
+import Imports._
+import Implicits._
+
 trait Conversations {
 	def convList : List[Conversation]
+	def createNewConversation : Conversation
 }
 
-//object Conversations {
-//	private var theConvList = List.empty[Conversation]
-//	private var init = false
-//	def convList = {
-//		if (!init) {
-//			init = true
-//		}
-//		theConvList
-//	}
-//}
+object Conversations extends Conversations {
+	private var theConvs : Option[Conversations] = None
+	
+	private def convs = {
+		if (theConvs.isEmpty) {
+			theConvs = Some(neu[Conversations])
+		}
+		theConvs.get
+	}
+	
+	def convList = convs.convList
+	def createNewConversation = convs.createNewConversation
+}

@@ -42,4 +42,8 @@ class PropertiesFromFile extends Properties {
 
 	def get(name : String) : Option[String] = runtimeProperties.get(name).orElse(defaultProperties.get(name))
 
+	def addDefaults(defaults : Map[String, String]) {
+		defaultProperties ++= defaults
+	}
+
 }

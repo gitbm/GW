@@ -64,7 +64,7 @@ class TestPropertiesFromFile {
 
 	@Test
 	def testDefaultPropertyFile() {
-		Properties.initialise(overwrite = true)
+		Properties.initialiseOverwrite(None)
 		val s1 = Properties.get("Ap1")
 		val s2 = Properties.get("Bp1")
 		val s3 = Properties.get("Cp1")
@@ -76,7 +76,7 @@ class TestPropertiesFromFile {
 	
 	@Test
 	def testDefaultPropertyFileWithDefaultMap() {
-		Properties.initialise(None, Map("Ap1" -> "Aval1def", "Ap2" -> "Aval2def"), true)
+		Properties.initialiseOverwrite(None, Map("Ap1" -> "Aval1def", "Ap2" -> "Aval2def"))
 		val s1 = Properties.get("Ap1")
 		val s2 = Properties.get("Ap2")
 		
@@ -87,7 +87,7 @@ class TestPropertiesFromFile {
 	@Test
 	def testFilenameViaPropertyFile() {
 		System.setProperty(SYSPROP_PROPERTY_FILE, PROP_FILENAME_VIA_PROPERTY)
-		Properties.initialise(overwrite = true)
+		Properties.initialiseOverwrite(None)
 		val s1 = Properties.get("Ap1")
 		val s2 = Properties.get("Bp1")
 		val s3 = Properties.get("Cp1")
@@ -99,7 +99,7 @@ class TestPropertiesFromFile {
 	
 	@Test
 	def testExplictPropertyFile() {
-		Properties.initialise(Some(PROP_FILENAME_EXPLICIT), overwrite = true)
+		Properties.initialiseOverwrite(Some(PROP_FILENAME_EXPLICIT))
 		val s1 = Properties.get("Ap1")
 		val s2 = Properties.get("Bp1")
 		val s3 = Properties.get("Cp1")

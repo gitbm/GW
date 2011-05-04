@@ -35,25 +35,28 @@ import org.gitwave.common.FactoryDefault
 import org.gitwave.common.ConversationAlternate
 import org.gitwave.common.Factory
 import org.gitwave.common.ConversationsAlternate
+import org.eclipse.jface.viewers.StructuredSelection
 
 
 
 class ScalaListContentProvider extends IStructuredContentProvider {
-	def getElements(inputElement: Object) = { inputElement.asInstanceOf[List[Object]].toArray }
+	def getElements(inputElement: Object) = { inputElement.asInstanceOf[ConversationListWrapper].list.asInstanceOf[List[Object]].toArray }
     def inputChanged(viewer : Viewer, oldInput : Object, newInput : Object) { }
     def dispose() { }
-
 }
+
+case class ConversationListWrapper(var list : List[Conversation]) 
 
 class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent, style) { 
 
 	private var text : Text = null
 	private var fetchButton : Button = null
-	private var remHead : ObjectId = null
-	private var head : ObjectId = null
+//	private var remHead : ObjectId = null
+//	private var head : ObjectId = null
 	private var theDisplay : Display = null
 	private var runtimeProperties = scala.collection.mutable.Map[String, String]()
 	private var viewer : ListViewer = _	
+	private var currentConv : Option[Conversation] = None
 
 	val PROPERTY_FILE = "propertyFile"
 	val DEFAULT_PROPERTY_FILE_NAME = "runtime.properties"
@@ -87,9 +90,6 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
     	setupAndReturn(new Text(parent, SWT.BORDER | style), setups : _*)  
 	}
 	
-	var debug = true;
-	def dbg(f : => Unit) { 	if (debug) { f } }
-	def dbprintln(s : String) { dbg { println(s) } 	}
 	
 	def setTextFromFile(fileName : String) = {
 		import io._
@@ -129,8 +129,8 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 				throw new RuntimeException("Property value for " + name + " could not be found")))
 	}
 	
-	def getTextData(conv : Conversation) = { conv.getText }
-	def setTextData(conv : Conversation) { text.setText(getTextData(conv)) }
+//	def getTextData(conv : Conversation) = { conv.getText }
+//	def setTextData(conv : Conversation) { text.setText(getTextData(conv)) }
 //	def getTextData(id : Long) = { id + " - ZYYYYYYYYYY" }
 //	def getTextData(id : String) : String = { getTextData(getTextId(id)) }
 //	def getTextId(id : String) = { try { id.toLong } catch { case _ => 0 } }
@@ -138,14 +138,14 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 //	def setTextData(id : String) { setTextData(getTextId(id)) }
 	
 	def setFocus() = {
-		viewer.getControl.setFocus()
+		text.setFocus()
 	}
 	
 	def listViewer(setups:(ListViewer => Unit)*)(parent:Composite) = {  
     	setupAndReturn(new ListViewer(parent), setups : _*) 
 	}
 	
-	implicit def funcToISelectionChangedListener( f : (SelectionChangedEvent) => Unit) : ISelectionChangedListener = {
+	implicit def funcToISelectionChangedListener[T]( f : (SelectionChangedEvent) => T) : ISelectionChangedListener = {
 		new ISelectionChangedListener {
 			def selectionChanged(event : SelectionChangedEvent) { f(event) }
 		}
@@ -156,17 +156,10 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 		}
 	}
 
-//	FactoryFactory.setInstance(new FactoryFactoryForApplication)
-//	val t = FactoryFactory.create(classOf[Conversation])
-//	val n = FactoryFactory.nu[Conversation]
-
 	initProperties
 
 	overrideCommonImplicits	
 
-	val convs = neu[Conversations]
-	dbprintln("conv created: " + convs.getClass().getSimpleName())
-	
 	theDisplay = Display.getDefault()
 	
 	val gridData = new GridData()
@@ -177,28 +170,83 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 	gridData.heightHint = 200
 		
 	// retrieve list of existing conversations
-	val convList = convs.convList
-	
+	var convListWrapper = ConversationListWrapper(Conversations.convList)
+	currentConv = convListWrapper.list match { case h :: t => Some(h); case Nil => None }
 	parent.contains (
 		_.setLayout(new GridLayout(1, false)),
 		label("Conversations"),
 		listViewer(
+		    viewer = _,
 			_.setContentProvider(new ScalaListContentProvider),	
 			_.setLabelProvider ({ o: Object => o.asInstanceOf[Conversation].id.toString }),
-		    _.setInput(convList),
-		    _.addSelectionChangedListener { (event : SelectionChangedEvent) => 
-		    	setTextData(event.getSelection().asInstanceOf[IStructuredSelection].iterator().next().asInstanceOf[Conversation])
+		    _.setInput(convListWrapper),
+		    _.addSelectionChangedListener { (event : SelectionChangedEvent)  =>
+		    	currentConv = Some(event.getSelection().asInstanceOf[IStructuredSelection].iterator().next().asInstanceOf[Conversation])
+		    	text.setText(currentConv.get.getText)
+		    	text.setFocus()
 		    }
 		),
 		button("New Conversation",
-			{ e : SelectionEvent =>	text.setText("") }
+			{ e : SelectionEvent =>	
+			    text.setText("")
+			    val newConv = Conversations.createNewConversation
+			    currentConv = Some(newConv)
+			    convListWrapper.list = Conversations.convList
+			    viewer.refresh(false)
+			    viewer.setSelection(new StructuredSelection(Array[Object](newConv)))
+			    text.setFocus()
+			}
+		),
+		group(
+		    _.setLayout(new GridLayout(2, false)),
+			button("Update",
+				_.setLayoutData(new GridData(100, 30)),
+				{ event : SelectionEvent =>
+					val result = currentConv.get.updateText(text.getText)
+					println (result match {
+						case Some(x) => "Error: " + x
+						case None => "Update Succeeded"
+					})
+
+//					val fw = new FileWriter(fullFileName)
+//					try{ fw.write(text.getText) } finally { fw.close }
+//					try { 
+//						git.add().addFilepattern(fileName).call()
+//						git.commit().setMessage("Committing stuff " + new Date()).call()
+//						updateHead
+//						git.push()
+//							.setRemote(gitRemoteAlias)
+//							.setRefSpecs(new RefSpec("master"))
+//							.setCredentialsProvider(cp)
+//							.call()
+//						dbprintln(wkdir + ": after push")
+//					}
+//					catch {
+//						case e => { dbprintln("Git Exception: " + e); e.printStackTrace() }
+//					}
+				}
+			),
+			button("Merge Remote Updates",
+				fetchButton = _,
+				_.setEnabled(false) //,
+//				{ e : SelectionEvent => 
+//				  dbprintln(wkdir + ": Merge")
+//				  git.merge().setStrategy(MergeStrategy.RESOLVE).include(remHead).call()
+//				  updateHead
+//				  setTextFromFile(fullFileName)
+//				  fetchButton.setEnabled(false)
+//				}
+		    )
 		),
 		textStyle(SWT.WRAP | SWT.MULTI,
 			_.setLayoutData(gridData),
 			text = _,
-			_.setText(getTextData(convList.head))
+			_.setText(currentConv.map(_.getText).getOrElse(""))
 		)
 	)
+	if (currentConv.isDefined) {
+	    viewer.setSelection(new StructuredSelection(Array[Object](currentConv.get)))
+	}
 	
 	
 	

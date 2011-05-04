@@ -16,5 +16,6 @@ class ConversationsAlternate extends Conversations {
 	  l.reverse 
   }
 
+	def createNewConversation : Conversation = neu[Conversation]
 
 }
