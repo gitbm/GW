@@ -1,7 +1,7 @@
 package org.gitwave.common
 
-import Imports._
-import Implicits._
+import Factory._
+//import Implicits._
 
 trait Properties {
 	def initialise(initString : Option[String], defaults : Map[String, String]) : Unit
@@ -21,7 +21,7 @@ object Properties extends Properties{
 
 	private def initialiseImpl(initString : Option[String], defaults : Map[String, String], overwrite : Boolean) = 
 		if (!init || overwrite) {
-			theProperties = neu[Properties]
+			theProperties = create[Properties]
 			theProperties.initialise(initString, if (defaults == null) Map[String, String]() else defaults); 
 			init = true 
 		}

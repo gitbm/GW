@@ -1,6 +1,6 @@
 package org.gitwave.common
 import org.gitwave._
-import Imports._
+import Factory._
 
 import org.junit.Assert._
 import org.junit.After
@@ -13,7 +13,6 @@ object constants {
 	val NO_CTR = "TestImpl"
 	val CTR_DEFAULT = "default"
 	val CTR_VALUE = "FOO"
-	val CTR_VALUE2 = "BAR"
 }
 
 import constants._
@@ -36,18 +35,18 @@ class TestFactory {
 
 	@Test
 	def testFactoryDefault() {
-		implicit val imp : Factory[TestTrait] = FactoryDefault[TestImpl]
+		defineImpl[TestTrait, TestImpl]
 	
-		val o = neu[TestTrait]	
+		val o = create[TestTrait]	
         assertEquals("class name", "org.gitwave.common.TestImpl", o.getClass.getName) 
 		assertEquals("method", NO_CTR, o.test) 
 	}
 
 	@Test
 	def testFactoryDefault2() {
-		implicit val imp : Factory[TestTrait] = FactoryDefault[TestImplCons]	
+		defineImpl[TestTrait, TestImplCons]
 
-		val o = neu[TestTrait]
+		val o = create[TestTrait]
 		//println("o2 cl = " + o2.getClass.getName + ", " + o2.test) 
 		assertEquals("class name", "org.gitwave.common.TestImplCons", o.getClass.getName) 
 		assertEquals("method", CTR_DEFAULT, o.test) 	
@@ -56,15 +55,11 @@ class TestFactory {
 	
 	@Test
 	def testFactory1Default() {
-		implicit val imp : Factory1[TestTrait, String] = Factory1Default[TestImplCons, String]
+		defineImpl[TestTrait, TestImplCons]
 	
-		val o = neu1[TestTrait, String](CTR_VALUE)
+		val o = create[TestTrait, String](CTR_VALUE)
 		assertEquals("class name", "org.gitwave.common.TestImplCons", o.getClass.getName) 
 		assertEquals("method", CTR_VALUE, o.test) 
-
-		val o2 = neu1[TestTrait](CTR_VALUE2)
-		assertEquals("class name", "org.gitwave.common.TestImplCons", o2.getClass.getName) 
-		assertEquals("method", CTR_VALUE2, o2.test) 
 
 	}
 }

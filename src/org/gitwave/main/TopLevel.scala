@@ -31,6 +31,7 @@ import common.Implicits._
 import Implicits._
 import common.Conversations
 import common.Conversation
+import common.ConversationsFromDisk
 import org.gitwave.common.FactoryDefault
 import org.gitwave.common.ConversationAlternate
 import org.gitwave.common.Factory
@@ -158,7 +159,9 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 
 	initProperties
 
-	overrideCommonImplicits	
+	//overrideCommonImplicits
+	import common.Factory._
+	defineImpl[Conversations, ConversationsFromDisk]
 
 	theDisplay = Display.getDefault()
 	

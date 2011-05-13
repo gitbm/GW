@@ -1,7 +1,7 @@
 package org.gitwave.common
 
 import org.gitwave._
-import Implicits._
+import Factory._
 import PropertiesFromFile._
 import java.io.File
 import java.io.FileWriter
@@ -45,7 +45,7 @@ object TestPropertiesFromFile {
 	@BeforeClass
 	def setUpBeforeClass { 
 		// Ensure we are testing Properties from file
-		implicitPropertiesFactory = FactoryDefault[PropertiesFromFile]
+		defineImpl[Properties, PropertiesFromFile]
 		initPropertyFiles() 
 	}
 

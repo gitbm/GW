@@ -1,7 +1,7 @@
 package org.gitwave.common
 
-import Imports._
-import Implicits._
+import Factory._
+//import Implicits._
 
 trait Conversations {
 	def convList : List[Conversation]
@@ -13,7 +13,7 @@ object Conversations extends Conversations {
 	
 	private def convs = {
 		if (theConvs.isEmpty) {
-			theConvs = Some(neu[Conversations])
+			theConvs = Some(create[Conversations])
 		}
 		theConvs.get
 	}
