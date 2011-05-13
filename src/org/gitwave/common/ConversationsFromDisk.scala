@@ -9,12 +9,9 @@ import java.io.File
 class ConversationsFromDisk extends Conversations {
 	import ConversationsFromDisk._
   
-    implicit val convFactory : Factory1[Conversation, ConversationInitArgs] = 
-	    Factory1Default(classOf[ConversationFromDir], classOf[ConversationInitArgs])
-
-	lazy val baseDir = new File(Properties.getMandatory("gw.base.dir"))
+	lazy val baseDir = neu1[File](Properties.getMandatory("gw.base.dir"))
 	  
-    def getSubDirs = { baseDir.listFiles().filter(_.isDirectory()).toList }
+    def getSubDirs = { baseDir.listFiles().toList.filter(_.isDirectory()) }
 
 	var cachedConvList : Option[List[Conversation]] = None
 	
@@ -35,7 +32,7 @@ class ConversationsFromDisk extends Conversations {
 	
     def createNewConversation : Conversation = {
     	val id = getNewId
-    	val dir = new File(baseDir, getSubDirNameFromId(id))
+    	val dir = neu2[File](baseDir, getSubDirNameFromId(id))
     	dir.mkdir
     	val conv = neu1[Conversation](ConversationInitArgs(dir.getAbsolutePath, true, Some(id)))
     	cachedConvList = Some(sort(conv :: cachedConvList.get))
@@ -49,6 +46,11 @@ class ConversationsFromDisk extends Conversations {
 }
 
 object ConversationsFromDisk {
+    implicit var convFactory : Factory1[Conversation, ConversationInitArgs] = 
+	    Factory1Default[ConversationFromDir, ConversationInitArgs]
+    implicit var fileFactory1 : Factory1[File, String] = Factory1Default[File, String]
+    implicit var fileFactory2 : Factory2[File, File, String] = Factory2Default[File, File, String]
+
 	val CONVERSATION_DIR_PREFIX = "conv_"
 	
 	def getIdFromSubDirName(subDirName : String) : Long = {

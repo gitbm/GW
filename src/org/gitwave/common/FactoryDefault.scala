@@ -12,11 +12,20 @@ package org.gitwave.common
 //	}
 //}
 
-class FactoryDefault[T](val theClass : Class[T]) extends Factory[T] {
-	private val cons = theClass.getConstructor()
+//class FactoryDefault[T](val theClass : Class[T]) extends Factory[T] {
+//	private val cons = theClass.getConstructor()
+//    def create(meta : Option[Either[String, AnyRef]]): T = cons.newInstance()
+//}
+//
+//object FactoryDefault {
+//	def apply[T](defaultClass : Class[T]) = new FactoryDefault[T](defaultClass)
+//}
+
+class FactoryDefault[T : ClassManifest] extends Factory[T] {
+	private val cons = classManifest[T].erasure.asInstanceOf[Class[T]].getConstructor()
     def create(meta : Option[Either[String, AnyRef]]): T = cons.newInstance()
 }
 
 object FactoryDefault {
-	def apply[T](defaultClass : Class[T]) = new FactoryDefault[T](defaultClass)
+	def apply[T : ClassManifest] = new FactoryDefault[T]
 }

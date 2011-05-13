@@ -36,7 +36,7 @@ class TestFactory {
 
 	@Test
 	def testFactoryDefault() {
-		implicit val imp : Factory[TestTrait] = FactoryDefault(classOf[TestImpl])	
+		implicit val imp : Factory[TestTrait] = FactoryDefault[TestImpl]
 	
 		val o = neu[TestTrait]	
         assertEquals("class name", "org.gitwave.common.TestImpl", o.getClass.getName) 
@@ -45,7 +45,7 @@ class TestFactory {
 
 	@Test
 	def testFactoryDefault2() {
-		implicit val imp : Factory[TestTrait] = FactoryDefault(classOf[TestImplCons])	
+		implicit val imp : Factory[TestTrait] = FactoryDefault[TestImplCons]	
 
 		val o = neu[TestTrait]
 		//println("o2 cl = " + o2.getClass.getName + ", " + o2.test) 
@@ -56,7 +56,7 @@ class TestFactory {
 	
 	@Test
 	def testFactory1Default() {
-		implicit val imp : Factory1[TestTrait, String] = Factory1Default(classOf[TestImplCons], classOf[String])	
+		implicit val imp : Factory1[TestTrait, String] = Factory1Default[TestImplCons, String]
 	
 		val o = neu1[TestTrait, String](CTR_VALUE)
 		assertEquals("class name", "org.gitwave.common.TestImplCons", o.getClass.getName) 

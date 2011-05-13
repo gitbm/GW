@@ -45,7 +45,7 @@ object TestPropertiesFromFile {
 	@BeforeClass
 	def setUpBeforeClass { 
 		// Ensure we are testing Properties from file
-		implicitPropertiesFactory = FactoryDefault(classOf[PropertiesFromFile])
+		implicitPropertiesFactory = FactoryDefault[PropertiesFromFile]
 		initPropertyFiles() 
 	}
 

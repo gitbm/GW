@@ -1,9 +1,9 @@
 package org.gitwave.common
 
 object Implicits {
-	implicit var implicitConversationFactory : Factory[Conversation] = FactoryDefault(classOf[ConversationDefault])	
+	implicit var implicitConversationFactory : Factory[Conversation] = FactoryDefault[ConversationDefault]
 
-	implicit var implicitConversationsFactory : Factory[Conversations] = FactoryDefault(classOf[ConversationsFromDisk])
+	implicit var implicitConversationsFactory : Factory[Conversations] = FactoryDefault[ConversationsFromDisk]
 	
-	implicit var implicitPropertiesFactory : Factory[Properties] = FactoryDefault(classOf[PropertiesFromFile])	
+	implicit var implicitPropertiesFactory : Factory[Properties] = FactoryDefault[PropertiesFromFile]	
 }

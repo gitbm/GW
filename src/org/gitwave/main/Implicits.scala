@@ -11,7 +11,6 @@ import org.gitwave.common.ConversationsFromDisk
 object Implicits {
 	
 	def overrideCommonImplicits {
-//		common.Implicits.implicitConversationFactory = FactoryDefault(classOf[ConversationAlternate])
-		common.Implicits.implicitConversationsFactory = FactoryDefault(classOf[ConversationsFromDisk])
+		common.Implicits.implicitConversationsFactory = FactoryDefault[ConversationsFromDisk]
 	}
 }
