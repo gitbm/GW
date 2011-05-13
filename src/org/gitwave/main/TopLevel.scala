@@ -27,7 +27,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.gitwave._
 import common.Imports._
-import common.Implicits._
 import Implicits._
 import common.Conversations
 import common.Conversation
