@@ -1,9 +1,7 @@
 package org.gitwave.common
 
 import scala.collection.immutable.List
-import org.gitwave._
-import Factory._
-//import Implicits._
+import org.acme.scalautil.Factory._
 
 class ConversationsAlternate extends Conversations {
 

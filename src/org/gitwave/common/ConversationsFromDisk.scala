@@ -1,15 +1,14 @@
 package org.gitwave.common
 
 import scala.collection.immutable.List
-import org.gitwave._
-import Factory._
-//import Implicits._
+import org.acme.scalautil.Factory._
+import org.acme.scalautil.Properties
 import java.io.File
 
 class ConversationsFromDisk extends Conversations {
 	import ConversationsFromDisk._
   
-	lazy val baseDir = create[File, String](Properties.getMandatory("gw.base.dir"))
+	lazy val baseDir = create[File, String](inject[Properties].getMandatory("gw.base.dir"))
 	  
     def getSubDirs = { baseDir.listFiles().toList.filter(_.isDirectory()) }
 
@@ -17,11 +16,12 @@ class ConversationsFromDisk extends Conversations {
 	
     def convList: List[Conversation] = {
     	if (cachedConvList.isEmpty) {
-    		val convs = for { 
-    			subDir <- getSubDirs
-    			id = getIdFromSubDirName(subDir.getName)
-    			conv = create[Conversation, ConversationInitArgs](ConversationInitArgs(subDir.getAbsolutePath, false, Some(id)))
-    		} yield conv
+    		val convs = 
+    			for {
+    				subDir <- getSubDirs
+    				id = getIdFromSubDirName(subDir.getName);
+    				conv = create[Conversation].init(ConversationInitArgs(subDir.getAbsolutePath, false, Some(id)))
+    			} yield conv
 
     		cachedConvList = Some(sort(convs))
     	}
@@ -34,7 +34,7 @@ class ConversationsFromDisk extends Conversations {
     	val id = getNewId
     	val dir = create[File, File, String](baseDir, getSubDirNameFromId(id))
     	dir.mkdir
-    	val conv = create[Conversation, ConversationInitArgs](ConversationInitArgs(dir.getAbsolutePath, true, Some(id)))
+    	val conv = create[Conversation].init(ConversationInitArgs(dir.getAbsolutePath, true, Some(id)))
     	cachedConvList = Some(sort(conv :: cachedConvList.get))
     	conv
     }

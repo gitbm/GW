@@ -31,11 +31,13 @@ import Implicits._
 import common.Conversations
 import common.Conversation
 import common.ConversationsFromDisk
-import org.gitwave.common.FactoryDefault
 import org.gitwave.common.ConversationAlternate
-import org.gitwave.common.Factory
 import org.gitwave.common.ConversationsAlternate
 import org.eclipse.jface.viewers.StructuredSelection
+
+import org.acme.scalautil.Factory._
+import org.acme.scalautil.Properties
+import org.acme.scalautil.PropertiesFromFile
 
 
 
@@ -159,8 +161,12 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 	initProperties
 
 	//overrideCommonImplicits
-	import common.Factory._
+	defineImpl[Properties, PropertiesFromFile]
+//	val properties = create[Properties]
+//	properties.initialise(None)
+//	register(properties)
 	defineImpl[Conversations, ConversationsFromDisk]
+	val conversations = inject[Conversations]
 
 	theDisplay = Display.getDefault()
 	
@@ -172,7 +178,7 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 	gridData.heightHint = 200
 		
 	// retrieve list of existing conversations
-	var convListWrapper = ConversationListWrapper(Conversations.convList)
+	var convListWrapper = ConversationListWrapper(conversations.convList)
 	currentConv = convListWrapper.list match { case h :: t => Some(h); case Nil => None }
 	parent.contains (
 		_.setLayout(new GridLayout(1, false)),
@@ -191,9 +197,9 @@ class TopLevel (parent : Composite) { // , style : Int) extends Composite(parent
 		button("New Conversation",
 			{ e : SelectionEvent =>	
 			    text.setText("")
-			    val newConv = Conversations.createNewConversation
+			    val newConv = conversations.createNewConversation
 			    currentConv = Some(newConv)
-			    convListWrapper.list = Conversations.convList
+			    convListWrapper.list = conversations.convList
 			    viewer.refresh(false)
 			    viewer.setSelection(new StructuredSelection(Array[Object](newConv)))
 			    text.setFocus()
